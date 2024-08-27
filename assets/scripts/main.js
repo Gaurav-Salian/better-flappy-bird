@@ -8,8 +8,9 @@ class Game{
         this.ratio = this.height / this.baseHeight;
         this.background = new Background(this);
         this.player = new Player(this);
+        this.sound = new AudioControl(this);
         this.obstacles =[];
-        this.numberOfObstacles =10;
+        this.numberOfObstacles =2;
         this.gravity;
         this.speed;
         this.minSpeed;
@@ -22,8 +23,9 @@ class Game{
         this.eventTimer =0;
         this.eventInterval = 150;
         this.eventUpdate = false;
-        this.touchStartX
-
+        this.touchStartX;
+        this.swipeDistance=50;
+        this.debug = !this.debug;
 
 
         this.resize(window.innerWidth,window.innerHeight);
@@ -35,21 +37,36 @@ class Game{
         this.canvas.addEventListener('mousedown', e =>{
             this.player.flap();
         });
+        this.canvas.addEventListener('mouseup', e =>{
+            this.player.wingsDown();
+        });
         // keyboard controls
         window.addEventListener('keydown', e =>{
-            console.log(e.key);
+            // console.log(e.key);
             if (e.key === 'Space' || e.key === 'Enter') {
                 this.player.flap();
             }
-            if(e.key ==='shift' || e.key.toLowerCase() === 'c'){
+            if(e.key ==='Shift' || e.key.toLowerCase() === 'c'){
                 this.player.startCharge();
             }
+            if(e.key.toLowerCase()==='r') this.resize(window.innerWidth,window.innerHeight);
+            if(e.key.toLowerCase()==='f') this.toggleFullScreen();
+            if(e.key.toLowerCase()==='d') this.debug = !this.debug;
+
+        });
+        window.addEventListener('keyup', e =>{
+            this.player.wingsDown();
         });
         //touch controls
         this.canvas.addEventListener('touchstart', e =>{
             this.player.flap();
+            this.touchStartX =e.changedTouches[0].pageX;
         });
-
+        this.canvas.addEventListener('touchmove', e=>{
+            if(e.changedTouches[0].swipeDistance){
+                this.player.startCharge();
+            }
+        });
     }
     resize(width, height){
         this.canvas.width = width;
@@ -57,14 +74,14 @@ class Game{
         // this.ctx.fillStyle = "blue";
         this.ctx.font = '15px Bungee';
         this.ctx.textAlign ='right';
-        this.ctx.lineWidth=3;
+        this.ctx.lineWidth=1;
         this.ctx.strokeStyle = 'white'
         this.width = this.canvas.width;
         this.height = this.canvas.height;
         this.ratio = this.height / this.baseHeight;
 
         this.gravity =0.15 * this.ratio;
-        this.speed =10 * this.ratio;
+        this.speed =5 * this.ratio;
         this.minSpeed = this.speed;
         this.maxSpeed = this.speed * 5;
         this.background.resize();
@@ -128,19 +145,29 @@ class Game{
         return (this.timer * 0.001).toFixed(1);
     }
 
+    triggerGameOver(){
+        if(!this.gameOver){
+            this.gameOver=true;
+            if (this.obstacles.length <= 0){
+                this.sound.play(this.sound.win);
+                this.message1 ="Nailed it!";
+                this.message2 ="Can you do it faster than " + this.formatTimer() + ' seconds!';
+            } 
+        }else { 
+            this.gameOver=true;
+            this.sound.play(this.sound.lose);
+            this.message1 ="Getting rusty?";
+            this.message2 ="Collision time " + this.formatTimer() + ' seconds!';
+        }
+    
+    }
+
     drawStatusText(){
         this.ctx.save();
         this.ctx.fillText('Score: '+ this.score, this.width -10, 30);
         this.ctx.textAlign= 'left';
         this.ctx.fillText('Timer: '+ this.formatTimer(), 10, 30);
         if(this.gameOver){
-            if (this.player.collided){
-                this.message1 ="Getting rusty?";
-                this.message2 ="Collision time " + this.formatTimer() + ' seconds!';
-            } else if(this.obstacles.length <=0){
-                this.message1 ="Nailed it!";
-                this.message2 ="Can you do it faster than " + this.formatTimer() + ' seconds!';
-            }
             this.ctx.textAlign= 'center';
             this.ctx.font= '30px Bungee';
             this.ctx.fillText(this.message1, this.width * 0.5, this.height * 0.5 - 40);
@@ -149,7 +176,7 @@ class Game{
             this.ctx.fillText("Press 'R' to try again" , this.width * 0.5, this.height * 0.5 );
         }
 
-        if(this.player.energy <= 20){
+        if(this.player.energy <= this.player.minEnergy){
             this.ctx.fillStyle ='red';
         }
         else if (this.player.energy >= this.player.maxEnergy) {
