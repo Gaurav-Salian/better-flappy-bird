@@ -22,6 +22,7 @@ class Game{
         this.eventTimer =0;
         this.eventInterval = 150;
         this.eventUpdate = false;
+        this.touchStartX
 
 
 
