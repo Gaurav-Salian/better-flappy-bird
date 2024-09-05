@@ -10,13 +10,14 @@ class Game{
         this.player = new Player(this);
         this.sound = new AudioControl(this);
         this.obstacles =[];
-        this.numberOfObstacles =200;
+        this.numberOfObstacles =5;
         this.gravity;
         this.speed;
         this.minSpeed;
         this.maxSpeed;
         this.score;
         this.gameOver;
+        this.bottomMargin;
         this.timer;
         this.message1;
         this.message2;
@@ -26,6 +27,8 @@ class Game{
         this.touchStartX;
         this.swipeDistance=50;
         this.debug = !this.debug;
+        this.smallFont;
+        this.largeFont;
 
 
         this.resize(window.innerWidth,window.innerHeight);
@@ -38,7 +41,10 @@ class Game{
             this.player.flap();
         });
         this.canvas.addEventListener('mouseup', e =>{
-            this.player.wingsDown();
+            // this.player.wingsUp();
+            setTimeout(() => {
+                this.player.wingsUp();
+            },50);
         });
         // keyboard controls
         window.addEventListener('keydown', e =>{
@@ -55,7 +61,7 @@ class Game{
 
         });
         window.addEventListener('keyup', e =>{
-            this.player.wingsDown();
+            this.player.wingsUp();
         });
         //touch controls
         this.canvas.addEventListener('touchstart', e =>{
@@ -63,8 +69,16 @@ class Game{
             this.touchStartX =e.changedTouches[0].pageX;
         });
         this.canvas.addEventListener('touchmove', e=>{
-            if(e.changedTouches[0].swipeDistance){
+            e.preventDefault();
+        });
+        this.canvas.addEventListener('touchend', e=>{
+            if(e.changedTouches[0].pageX - this.touchStartX > this.swipeDistance){
                 this.player.startCharge();
+            }else {
+                this.player.flap();
+                setTimeout(() => {
+                    this.player.wingsUp();
+                },50);
             }
         });
     }
@@ -72,7 +86,6 @@ class Game{
         this.canvas.width = width;
         this.canvas.height = height;
         // this.ctx.fillStyle = "blue";
-        this.ctx.font = '15px Bungee';
         this.ctx.textAlign ='right';
         this.ctx.lineWidth=1;
         this.ctx.strokeStyle = 'white'
@@ -80,6 +93,11 @@ class Game{
         this.height = this.canvas.height;
         this.ratio = this.height / this.baseHeight;
 
+
+        this.bottomMargin = Math.floor(50 * this.ratio); 
+        this.smallFont = Math.ceil(20* this.ratio);
+        this.largeFont = Math.ceil(45* this.ratio);
+        this.ctx.font = this.smallFont + 'px Bungee';
         this.gravity =0.15 * this.ratio;
         this.speed =5 * this.ratio;
         this.minSpeed = this.speed;
@@ -159,20 +177,30 @@ class Game{
             this.message1 ="Getting rusty?";
             this.message2 ="Collision time " + this.formatTimer() + ' seconds!';
         }
-    
     }
+
+    // triggerGameOver(){
+    //     if(!this.gameOver){
+    //         this.gameOver =true;
+    //         if (this.obstacles.length <= 0){
+    //             this.sound.play(this.sound.win);
+    //         }else{
+    //             this.sound.lose;
+    //         }
+    //     }
+    // }
 
     drawStatusText(){
         this.ctx.save();
-        this.ctx.fillText('Score: '+ this.score, this.width -10, 30);
+        this.ctx.fillText('Score: '+ this.score, this.width -this.smallFont, this.largeFont);
         this.ctx.textAlign= 'left';
-        this.ctx.fillText('Timer: '+ this.formatTimer(), 10, 30);
+        this.ctx.fillText('Timer: '+ this.formatTimer(), this.smallFont, this.largeFont);
         if(this.gameOver){
             this.ctx.textAlign= 'center';
-            this.ctx.font= '30px Bungee';
-            this.ctx.fillText(this.message1, this.width * 0.5, this.height * 0.5 - 40);
-            this.ctx.font= '15px Bungee';
-            this.ctx.fillText(this.message2, this.width * 0.5, this.height * 0.5 - 20);
+            this.ctx.font= this.largeFont +'px Bungee';
+            this.ctx.fillText(this.message1, this.width * 0.5, this.height * 0.5 - this.largeFont);
+            this.ctx.font= this.smallFont +'px Bungee';
+            this.ctx.fillText(this.message2, this.width * 0.5, this.height * 0.5 - this.smallFont);
             this.ctx.fillText("Press 'R' to try again" , this.width * 0.5, this.height * 0.5 );
         }
 

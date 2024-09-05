@@ -48,7 +48,7 @@ class Player{
 
         //bottom boundary
         if (this.isTouchingBottom()){
-            this.y =this.game.height - this.height;
+            this.y =this.game.height - this.height - this.game.bottomMargin;
             this.wingsIdle();
             // console.log(this.speedY);
         }
@@ -104,7 +104,8 @@ class Player{
     }
 
     isTouchingBottom(){
-        return this.y >= this.game.height - this.height
+        return this.y >= this.game.height - this.height - this.game.bottomMargin;
+        
     }
 
     handleEnergy(){

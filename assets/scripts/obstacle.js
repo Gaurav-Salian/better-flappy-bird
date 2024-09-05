@@ -50,11 +50,16 @@ class Obstacle{
         }
     }
     draw(){
-        // this.game.ctx.fillRect(this.x, this.y, this.scaledWidth, this.scaledHeight);
         this.game.ctx.drawImage(this.image, this.frameX *this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.scaledWidth, this.scaledHeight);
-        this.game.ctx.beginPath();
-        this.game.ctx.arc(this.collisionX, this.collisionY, this.collisionRadius,0, Math.PI*2);
-        this.game.ctx.stroke();
+
+        if (this.game.debug){
+            this.game.ctx.beginPath();
+            this.game.ctx.arc(this.collisionX, this.collisionY, this.collisionRadius,0, Math.PI*2);
+            this.game.ctx.stroke();
+
+        }
+
+        // this.game.ctx.fillRect(this.x, this.y, this.scaledWidth, this.scaledHeight);
     }
     resize(){
         this.scaledWidth = this.spriteWidth * this.game.ratio;
