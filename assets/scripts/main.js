@@ -26,7 +26,7 @@ class Game{
         this.eventUpdate = false;
         this.touchStartX;
         this.swipeDistance=50;
-        this.debug = !this.debug;
+        this.debug = this.debug;
         this.smallFont;
         this.largeFont;
 

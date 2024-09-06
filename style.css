@@ -18,3 +18,11 @@
 .assets{
     display: none;
 }
+
+@media screen and (orientaion: landscape){
+    body{
+        transform : none;
+        width:100vw;
+        height: 100vh;
+    }
+}

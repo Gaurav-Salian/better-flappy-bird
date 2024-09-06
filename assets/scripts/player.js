@@ -82,7 +82,7 @@ class Player{
     }
 
     wingsIdle(){
-        this.frameY= 0;
+        if(!this.charging) this.frameY= 0;
     }
     wingsDown(){
         if(!this.charging) this.frameY=1;
